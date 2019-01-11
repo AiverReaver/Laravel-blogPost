@@ -16,33 +16,45 @@
         @endif
         <br><br>
         <h3>Comments</h3>
-        <form action="/comments" method="post">
+        <form action="/posts/{{ $post->id }}/comments" method="post">
             @csrf
             <div class="form-group">
-                <textarea name="commnet" cols="30" rows="3" class="form-control" placeholder="Type Something here"></textarea>
+                <textarea name="message" cols="30" rows="3" class="form-control" placeholder="Type Something here"></textarea>
             </div>
             <input type="submit" value="Comment" class="btn btn-primary">
         </form>
         <br><br>
-        @if (count($comments) > 0)
-            @foreach ($comments as $comment) 
-                <div class="card bg-light card-body mb-3">
-                    <div class="row">
-                        <div>
-                            <h6 style="font-weight:bold">{{ ucwords($comment->username) }} </h6> <span>{{ $comment->created_at }}</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <p>{{ $comment->message }}</p>
-                    </div>
-                </div>
-            @endforeach 
-        @else
-        <br>
-            Be First to comment on this post
-        @endif
     @else
-        Login To comment
+    Login To comment
+        <br><br>
+       
+    @endif
+    @if (count($post->comments) > 0)
+    @foreach ($post->comments as $comment) 
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 style="display:inline; font-weight: bold" class="mr-2">{{ ucwords($comment->username) }}</h5> 
+                <small>{{ $comment->created_at }}</small>
+            </div>
+            <div class="card-body">
+                <p>{{ $comment->message }}</p>
+                @if (!Auth::Guest())
+                    @if (Auth::user()->id == $comment->user_id)
+                        <a href="/comments/{{$comment->id}}" style="float:left" class="btn btn-primary">Edit</a>
+                        <form action="/comments/{{$comment->id}}" method="post">
+                            @csrf
+                            @method('delete')
+                            <input type="submit" style="float:right" value="delete" class="btn btn-danger">
+                        </form>
+                    @endif
+                @endif
+                
+            </div>
+        </div>
+    @endforeach 
+    @else
+        <br>
+        Be First to comment on this post
     @endif
 
 @endsection
